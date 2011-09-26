@@ -1,4 +1,2 @@
 require "masochism/version"
-
-module Masochism
-end
+require "masochism/active_reload"
