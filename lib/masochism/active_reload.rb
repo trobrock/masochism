@@ -1,2 +1,2 @@
-require 'active_reload/connection_proxy'
-require 'active_reload/master_filter'
+require 'masochism/active_reload/connection_proxy'
+require 'masochism/active_reload/master_filter'
