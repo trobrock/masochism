@@ -47,6 +47,15 @@ module Masochism
             ActiveRecord::Base.connection.execute('CREATE TABLE foo (id int)')
           end
         end
+
+        it "should be able to handle sub transactions" do
+          ActiveRecord::Base.connection.transaction do
+            ActiveRecord::Base.connection.execute('CREATE TABLE foo (id int)')
+            ActiveRecord::Base.connection.transaction do
+              ActiveRecord::Base.connection.tables.should == ['foo']
+            end
+          end
+        end
       end
 
       context "both slave and master are defined" do

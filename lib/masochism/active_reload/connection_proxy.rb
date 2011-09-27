@@ -52,11 +52,11 @@ module Masochism
         slave.connection_proxy = new(master, slave)
       end
 
-      def with_master
+      def with_master(switch_to_slave = true)
         set_to_master!
         yield
       ensure
-        set_to_slave!
+        set_to_slave! if switch_to_slave
       end
 
       def set_to_master!
@@ -75,7 +75,11 @@ module Masochism
 
       delegate :insert, :update, :delete, :create_table, :rename_table, :drop_table, :add_column, :remove_column,
         :change_column, :change_column_default, :rename_column, :add_index, :remove_index, :initialize_schema_information,
-        :dump_schema_information, :execute, :columns, :transaction, :to => :master
+        :dump_schema_information, :execute, :columns, :to => :master
+
+      def transaction(options = {}, &block)
+        with_master(master.open_transactions == 0) {current.transaction(options, &block)}
+      end
 
       def method_missing(method, *args, &block)
         current.send(method, *args, &block)
