@@ -18,15 +18,34 @@ module Masochism
       end
 
       context "no slave is defined" do
-        it "should use the master database for reads" do
+        before(:each) do
           ActiveRecord::Base.configurations = default_config
           force_connection_reset!
           ActiveReload::ConnectionProxy.setup!
+        end
 
+        it "should use the master database for reads" do
           ActiveRecord::Base.connection.master.execute('CREATE TABLE foo (id int)')
 
           ActiveRecord::Base.connection.tables.should == ['foo']
           ActiveRecord::Base.connection.slave.tables.should == ['foo']
+        end
+
+        it "should be able to insert when inside of a transaction" do
+          ActiveRecord::Base.connection.transaction do
+            ActiveRecord::Base.connection.execute('CREATE TABLE foo (id int)')
+          end
+
+          ActiveRecord::Base.connection.tables.should == ['foo']
+        end
+
+        it "should call transaction on the master connection" do
+          ActiveRecord::Base.connection.master.expects(:transaction)
+          ActiveRecord::Base.connection.slave.expects(:transaction).never
+
+          ActiveRecord::Base.connection.transaction do
+            ActiveRecord::Base.connection.execute('CREATE TABLE foo (id int)')
+          end
         end
       end
 

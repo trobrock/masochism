@@ -10,4 +10,6 @@ require 'bundler/setup'
 
 
 RSpec.configure do |config|
+  config.mock_with :mocha
+  config.color_enabled = true
 end
