@@ -1,7 +1,7 @@
 masochism
 =========
 
-[![Build Status](https://secure.travis-ci.org/trobrock/masochism.png)](http://travis-ci.org/trobrock/masochism])
+[![Build Status](https://secure.travis-ci.org/trobrock/masochism.png)](http://travis-ci.org/trobrock/masochism)
 
 <div style="width:240px; padding:2px; border:1px solid silver; float:right; margin:0 0 1em 2em; background:white">
   <img src="http://farm1.static.flickr.com/111/295426387_a39c5c8954_m.jpg" alt="Scream" />
