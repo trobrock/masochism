@@ -52,11 +52,11 @@ module Masochism
         slave.connection_proxy = new(master, slave)
       end
 
-      def with_master(switch_to_slave = true)
+      def with_master
         set_to_master!
         yield
       ensure
-        set_to_slave! if switch_to_slave
+        set_to_slave! if master.open_transactions == 0
       end
 
       def set_to_master!
@@ -78,7 +78,7 @@ module Masochism
         :dump_schema_information, :execute, :columns, :to => :master
 
       def transaction(options = {}, &block)
-        with_master(master.open_transactions == 0) {current.transaction(options, &block)}
+        with_master {current.transaction(options, &block)}
       end
 
       def method_missing(method, *args, &block)

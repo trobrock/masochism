@@ -25,8 +25,7 @@ module Masochism
         end
 
         it "should use the master database for reads" do
-          ActiveRecord::Base.connection.master.execute('CREATE TABLE foo (id int)')
-
+          ActiveRecord::Base.connection.execute('CREATE TABLE foo (id int)')
           ActiveRecord::Base.connection.tables.should == ['foo']
           ActiveRecord::Base.connection.slave.tables.should == ['foo']
         end
@@ -50,10 +49,8 @@ module Masochism
 
         it "should be able to handle sub transactions" do
           ActiveRecord::Base.connection.transaction do
-            ActiveRecord::Base.connection.execute('CREATE TABLE foo (id int)')
-            ActiveRecord::Base.connection.transaction do
-              ActiveRecord::Base.connection.tables.should == ['foo']
-            end
+            ActiveRecord::Base.connection.with_master {}
+            ActiveRecord::Base.connection.current.should == ActiveRecord::Base.connection.master
           end
         end
       end
