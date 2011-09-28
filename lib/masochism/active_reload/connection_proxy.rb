@@ -97,6 +97,7 @@ module Masochism
 
           # hijack the original method
           def connection
+            @@connection_proxy.current
             @@connection_proxy
           end
         end
