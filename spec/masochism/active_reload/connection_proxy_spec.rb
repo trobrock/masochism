@@ -53,6 +53,16 @@ module Masochism
             ActiveRecord::Base.connection.current.should == ActiveRecord::Base.connection.master
           end
         end
+
+        it "should not persist old connections" do
+          ActiveRecord::Base.configurations = default_config
+          force_connection_reset!
+          ActiveReload::ConnectionProxy.setup!
+
+          ActiveRecord::Base.establish_connection(:development)
+          ActiveRecord::Base.connection.master.instance_variable_get("@config")[:database].should match /development/
+          ActiveRecord::Base.connection.slave.instance_variable_get("@config")[:database].should match /development/
+        end
       end
 
       context "both slave and master are defined" do
@@ -108,6 +118,10 @@ module Masochism
           Rails.env => {
             'adapter' => 'sqlite3',
             'database' => MASTER
+          },
+          "development" => {
+            'adapter' => 'sqlite3',
+            'database' => 'db/development.sqlite3'
           }
         }
       end
@@ -146,6 +160,14 @@ module Masochism
             'slave_database' => {
               'adapter' => 'sqlite3',
               'database' => SLAVE
+            }
+          },
+          "development" => {
+            'adapter' => 'sqlite3',
+            'database' => "db/development.sqlite3",
+            'slave_database' => {
+              'adapter' => 'sqlite3',
+              'database' => "db/development_slave.sqlite3"
             }
           }
         }
