@@ -75,11 +75,7 @@ module Masochism
 
       delegate :insert, :update, :delete, :create_table, :rename_table, :drop_table, :add_column, :remove_column,
         :change_column, :change_column_default, :rename_column, :add_index, :remove_index, :initialize_schema_information,
-        :dump_schema_information, :execute, :columns, :to => :master
-
-      def transaction(options = {}, &block)
-        with_master {current.transaction(options, &block)}
-      end
+        :dump_schema_information, :execute, :columns, :transaction, :to => :master
 
       def method_missing(method, *args, &block)
         current.send(method, *args, &block)
