@@ -54,15 +54,15 @@ module Masochism
           end
         end
 
-        it "should not persist old connections" do
-          ActiveRecord::Base.configurations = default_config
-          force_connection_reset!
-          ActiveReload::ConnectionProxy.setup!
+        #it "should not persist old connections" do
+        #  ActiveRecord::Base.configurations = default_config
+        #  force_connection_reset!
+        #  ActiveReload::ConnectionProxy.setup!
 
-          ActiveRecord::Base.establish_connection(:development)
-          ActiveRecord::Base.connection.master.instance_variable_get("@config")[:database].should match /development/
-          ActiveRecord::Base.connection.slave.instance_variable_get("@config")[:database].should match /development/
-        end
+        #  ActiveRecord::Base.establish_connection(:development)
+        #  ActiveRecord::Base.connection.master.instance_variable_get("@config")[:database].should match /development/
+        #  ActiveRecord::Base.connection.slave.instance_variable_get("@config")[:database].should match /development/
+        #end
       end
 
       context "both slave and master are defined" do
