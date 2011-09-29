@@ -7,16 +7,6 @@ module Masochism
       MASTER = 'db/test.sqlite3'
       SLAVE = 'db/test_slave.sqlite3'
 
-      it "should return nil when asking if a slave is defined" do
-        ActiveRecord::Base.configurations = default_config
-        described_class.slave_defined?.should be_nil
-      end
-
-      it "should return true when asking if a slave is defined" do
-        ActiveRecord::Base.configurations = slave_inside_config
-        described_class.slave_defined?.should be_true
-      end
-
       context "no slave is defined" do
         before(:each) do
           ActiveRecord::Base.configurations = default_config
@@ -105,6 +95,10 @@ module Masochism
 
       after(:each) do
         ActiveRecord::Base.remove_connection
+        class << ActiveRecord::Base
+          alias_method :connection, :connection_without_connection_proxy
+        end
+
         FileUtils.rm_f(File.join(Rails.root, MASTER))
         FileUtils.rm_f(File.join(Rails.root, SLAVE))
       end

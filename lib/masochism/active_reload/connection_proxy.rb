@@ -5,14 +5,6 @@ module Masochism
       establish_connection configurations[Rails.env]['master_database'] || configurations['master_database'] || Rails.env
     end
 
-    class SlaveDatabase < ActiveRecord::Base
-      self.abstract_class = true
-      def self.name
-        ActiveRecord::Base.name
-      end
-      establish_connection configurations[Rails.env]['slave_database'] || Rails.env
-    end
-
     class ConnectionProxy
 
       def initialize(master_class, slave_class)
@@ -34,21 +26,14 @@ module Masochism
       end
 
       def self.setup!
-        if slave_defined?
-          setup_for ActiveReload::MasterDatabase, ActiveReload::SlaveDatabase
-        else
-          setup_for ActiveReload::MasterDatabase
-        end
-      end
-
-      def self.slave_defined?
-        ActiveRecord::Base.configurations[Rails.env]['slave_database']
+        setup_for ActiveReload::MasterDatabase
       end
 
       def self.setup_for(master, slave = nil)
         slave ||= ActiveRecord::Base
         slave.send :include, ActiveRecordConnectionMethods
         ActiveRecord::Observer.send :include, ActiveReload::ObserverExtensions
+        slave.establish_connection slave.configurations[Rails.env]['slave_database'] || Rails.env
         slave.connection_proxy = new(master, slave)
       end
 
@@ -89,17 +74,22 @@ module Masochism
     module ActiveRecordConnectionMethods
       def self.included(base)
         base.alias_method_chain :reload, :master
+        base.extend ClassMethods
 
         class << base
-          def connection_proxy=(proxy)
-            @@connection_proxy = proxy
-          end
+          alias_method :connection_without_connection_proxy, :connection
+          alias_method :connection, :connection_with_connection_proxy
+        end
+      end
 
-          # hijack the original method
-          def connection
-            @@connection_proxy.current
-            @@connection_proxy
-          end
+      module ClassMethods
+        def connection_proxy=(proxy)
+          @@connection_proxy = proxy
+        end
+
+        def connection_with_connection_proxy
+          @@connection_proxy.current
+          @@connection_proxy
         end
       end
 
